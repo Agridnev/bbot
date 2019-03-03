@@ -1,0 +1,39 @@
+<launch>
+
+  <arg name="model" default="$(find bbot_description)/robots/bbot.urdf.xacro" />
+
+  <param name="robot_description" command="xacro $(arg model)" />
+
+  <node name="master_discovery" pkg="master_discovery_fkie" type="master_discovery" />
+  <node name="master_sync" pkg="master_sync_fkie" type="master_sync" />
+
+  <node name="bbot_driver" pkg="bbot_driver" type="bbot_driver" />
+
+  <node name="rplidarNode" pkg="rplidar_ros" type="rplidarNode">
+    <param name="serial_port" value="/dev/ttyUSB0"/>
+    <param name="serial_baudrate" value="115200"/>
+    <param name="frame_id" value="laser"/>
+    <param name="inverted" value="false"/>
+    <param name="angle_compensate" value="true"/>
+    <remap from="scan" to="scan_raw" />
+  </node>
+
+  <node name="camera" pkg="usb_cam" type="usb_cam_node">
+    <param name="video_device" value="/dev/video0" />
+    <param name="image_width" value="640" />
+    <param name="image_height" value="480" />
+    <param name="pixel_format" value="yuyv" /> 
+    <param name="camera_frame_id" value="camera" />
+    <param name="io_method" value="mmap"/>
+  </node>
+
+  <node name="scan_to_scan_filter_chain" pkg="laser_filters" type="scan_to_scan_filter_chain">
+    <rosparam command="load" file="$(find bbot_description)/config/laser_filters.yaml" />
+    <remap from="scan" to="scan_raw" />
+    <remap from="scan_filtered" to="scan" />
+  </node>
+
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+
+</launch>

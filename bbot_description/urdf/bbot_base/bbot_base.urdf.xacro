@@ -1,0 +1,183 @@
+<?xml version="1.0"?>
+<robot name="bbot_base" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:include filename="$(find bbot_description)/urdf/bbot_base/bbot_base_gazebo.urdf.xacro" />
+
+  <xacro:macro name="bbot_base">
+    <xacro:property name="base_length" value="0.305" />
+    <xacro:property name="base_width" value="0.195" />
+    <xacro:property name="base_height_bottom" value="0.070" />
+    <xacro:property name="base_height_middle" value="0.015" />
+    <xacro:property name="base_height_top" value="0.035" />
+    <xacro:property name="base_laser_radius" value="0.035" />
+    <xacro:property name="base_pillar_radius" value="0.004" />
+    <xacro:property name="base_pillar_x" value="0.140" />
+    <xacro:property name="base_pillar_y" value="0.085" />
+    <xacro:property name="base_shaft_radius" value="0.005" />
+    <xacro:property name="base_mass" value="2.300" />
+    <xacro:property name="wheel_radius" value="0.032" />
+    <xacro:property name="wheel_width" value="0.025" />
+    <xacro:property name="wheel_x" value="0.080" />
+    <xacro:property name="wheel_y" value="0.122" />
+    <xacro:property name="wheel_z" value="0.018" />
+    <xacro:property name="wheel_mass" value="0.032" />
+    <xacro:property name="laser_z" value="0.080" />
+    <xacro:property name="camera_x" value="0.145" />
+    <xacro:property name="camera_z" value="0.030" />
+    <xacro:property name="camera_pitch" value="${radians(-15)}" />
+
+    <link name="base_link">
+      <!-- bottom -->
+      <visual>
+        <origin xyz="0 0 ${base_height_bottom / 2}" />
+        <geometry>
+          <box size="${base_length} ${base_width} ${base_height_bottom}" />
+        </geometry>
+        <material name="bbot_white" />
+      </visual>
+      <collision>
+        <origin xyz="0 0 ${base_height_bottom / 2}" />
+        <geometry>
+          <box size="${base_length} ${base_width} ${base_height_bottom}" />
+        </geometry>
+      </collision>
+      <!-- laser -->
+      <visual>
+        <origin xyz="0 0 ${base_height_bottom + base_height_middle / 2}" />
+        <geometry>
+          <cylinder radius="${base_laser_radius}" length="${base_height_middle}" />
+        </geometry>
+        <material name="bbot_black" />
+      </visual>
+      <collision>
+        <origin xyz="0 0 ${base_height_bottom + base_height_middle / 2}" />
+        <geometry>
+          <cylinder radius="${base_laser_radius}" length="${base_height_middle}" />
+        </geometry>
+      </collision>
+      <!-- pillars -->
+      <xacro:bbot_base_pillar_vc x="1" y="1" />
+      <xacro:bbot_base_pillar_vc x="1" y="-1" />
+      <xacro:bbot_base_pillar_vc x="-1" y="1" />
+      <xacro:bbot_base_pillar_vc x="-1" y="-1" />
+      <!-- top -->
+      <visual>
+        <origin xyz="0 0 ${base_height_bottom + base_height_middle + base_height_top / 2}" />
+        <geometry>
+          <box size="${base_length} ${base_width} ${base_height_top}" />
+        </geometry>
+        <material name="bbot_white" />
+      </visual>
+      <collision>
+        <origin xyz="0 0 ${base_height_bottom + base_height_middle + base_height_top / 2}" />
+        <geometry>
+          <box size="${base_length} ${base_width} ${base_height_top}" />
+        </geometry>
+      </collision>
+      <!-- shafts -->
+      <xacro:bbot_base_shaft_vc x="1" y="1" />
+      <xacro:bbot_base_shaft_vc x="1" y="-1" />
+      <xacro:bbot_base_shaft_vc x="-1" y="1" />
+      <xacro:bbot_base_shaft_vc x="-1" y="-1" />
+      <!-- inertial -->
+      <inertial>
+        <origin xyz="0 0 ${base_height_bottom / 2}" />
+        <mass value="${base_mass}" />
+        <inertia ixx="${(base_width * base_width + base_height_bottom * base_height_bottom) * base_mass / 12}" ixy="0.0" ixz="0.0"
+                 iyy="${(base_length * base_length + base_height_bottom * base_height_bottom) * base_mass / 12}" iyz="0.0"
+                 izz="${(base_width * base_width + base_length * base_length) * base_mass / 12}" />
+      </inertial>
+    </link>
+
+    <xacro:bbot_base_wheel prefix="fl" x="1" y="1" />
+    <xacro:bbot_base_wheel prefix="fr" x="1" y="-1" />
+    <xacro:bbot_base_wheel prefix="rl" x="-1" y="1" />
+    <xacro:bbot_base_wheel prefix="rr" x="-1" y="-1" />
+
+    <link name="laser" />
+
+    <joint name="laser_joint" type="fixed">
+      <parent link="base_link" />
+      <child link="laser" />
+      <origin xyz="0 0 ${laser_z}" rpy="0 0 ${radians(180)}" />
+    </joint>
+
+    <link name="camera" />
+
+    <joint name="camera_joint" type="fixed">
+      <parent link="base_link" />
+      <child link="camera" />
+      <origin xyz="${camera_x} 0 ${camera_z}" rpy="0 ${camera_pitch} 0" />
+    </joint>
+
+    <xacro:bbot_base_gazebo />
+  </xacro:macro>
+
+  <xacro:macro name="bbot_base_pillar_vc" params="x y">
+    <visual>
+      <origin xyz="${x * base_pillar_x} ${y * base_pillar_y} ${base_height_bottom + base_height_middle / 2}" />
+      <geometry>
+        <cylinder radius="${base_pillar_radius}" length="${base_height_middle}" />
+      </geometry>
+      <material name="bbot_white" />
+    </visual>
+    <collision>
+      <origin xyz="${x * base_pillar_x} ${y * base_pillar_y} ${base_height_bottom + base_height_middle / 2}" />
+      <geometry>
+        <cylinder radius="${base_pillar_radius}" length="${base_height_middle}" />
+      </geometry>
+    </collision>
+  </xacro:macro>
+
+  <xacro:macro name="bbot_base_shaft_vc" params="x y">
+    <xacro:property name="base_shaft_length" value="${wheel_y - wheel_width / 2 - base_width / 2}" />
+    <xacro:property name="base_shaft_y" value="${base_width / 2 + base_shaft_length / 2}" />
+    <visual>
+      <origin xyz="${x * wheel_x} ${y * base_shaft_y} ${wheel_z}" rpy="${radians(90)} 0 0" />
+      <geometry>
+        <cylinder radius="${base_shaft_radius}" length="${base_shaft_length}" />
+      </geometry>
+      <material name="bbot_white" />
+    </visual>
+    <collision>
+      <origin xyz="${x * wheel_x} ${y * base_shaft_y} ${wheel_z}" rpy="${radians(90)} 0 0" />
+      <geometry>
+        <cylinder radius="${base_shaft_radius}" length="${base_shaft_length}" />
+      </geometry>
+    </collision>
+  </xacro:macro>
+
+  <xacro:macro name="bbot_base_wheel" params="prefix x y">
+    <link name="base_${prefix}_wheel">
+      <visual>
+        <origin rpy="${radians(90)} 0 0" />
+        <geometry>
+          <cylinder radius="${wheel_radius}" length="${wheel_width}" />
+        </geometry>
+        <material name="bbot_black" />
+      </visual>
+      <collision>
+        <origin rpy="${radians(90)} 0 0" />
+        <geometry>
+          <cylinder radius="${wheel_radius}" length="${wheel_width}" />
+        </geometry>
+      </collision>
+      <inertial>
+        <origin rpy="${radians(90)} 0 0" />
+        <mass value="${wheel_mass}" />
+        <inertia ixx="${(3 * wheel_radius * wheel_radius + wheel_width * wheel_width) * wheel_mass / 2}" ixy="0.0" ixz="0.0"
+                 iyy="${wheel_radius * wheel_radius * wheel_mass / 2}" iyz="0.0"
+                 izz="${(3 * wheel_radius * wheel_radius + wheel_width * wheel_width) * wheel_mass / 2}" />
+      </inertial>
+    </link>
+
+    <joint name="base_${prefix}_wheel_joint" type="continuous">
+      <parent link="base_link" />
+      <child link="base_${prefix}_wheel" />
+      <axis xyz="0 1 0" />
+      <origin xyz="${x * wheel_x} ${y * wheel_y} ${wheel_z}" />
+    </joint>
+  </xacro:macro>
+
+</robot>
+

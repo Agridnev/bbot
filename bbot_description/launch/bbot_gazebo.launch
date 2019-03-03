@@ -1,0 +1,23 @@
+<launch>
+
+  <arg name="model" default="$(find bbot_description)/robots/bbot.urdf.xacro" />
+  <arg name="world_name" default="worlds/empty.world" />
+
+  <param name="robot_description" command="xacro $(arg model)" />
+
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(arg world_name)" />
+  </include>
+
+  <node name="spawn_model" pkg="gazebo_ros" type="spawn_model" args="-urdf -model bbot -param robot_description -z 0.1" respawn="false" />
+
+  <node name="scan_to_scan_filter_chain" pkg="laser_filters" type="scan_to_scan_filter_chain">
+    <rosparam command="load" file="$(find bbot_description)/config/laser_filters.yaml" />
+    <remap from="scan" to="scan_raw" />
+    <remap from="scan_filtered" to="scan" />
+  </node>
+
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+
+</launch>

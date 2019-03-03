@@ -1,0 +1,107 @@
+<?xml version="1.0"?>
+<robot name="bbot_base_gazebo" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:macro name="bbot_base_wheel_gazebo" params="prefix">
+    <gazebo reference="base_${prefix}_wheel">
+      <mu1>1</mu1>
+      <mu2>0.7</mu2>
+      <fdir1>1 0 0</fdir1>
+      <material>Gazebo/Black</material>
+    </gazebo>
+  </xacro:macro>
+
+  <xacro:macro name="bbot_base_gazebo">
+    <xacro:bbot_base_wheel_gazebo prefix="fl" />
+    <xacro:bbot_base_wheel_gazebo prefix="fr" />
+    <xacro:bbot_base_wheel_gazebo prefix="rl" />
+    <xacro:bbot_base_wheel_gazebo prefix="rr" />
+
+    <gazebo>
+      <plugin name="skid_steer_drive_controller" filename="libgazebo_ros_skid_steer_drive.so">
+        <broadcastTF>true</broadcastTF>
+        <leftFrontJoint>base_fl_wheel_joint</leftFrontJoint>
+        <rightFrontJoint>base_fr_wheel_joint</rightFrontJoint>
+        <leftRearJoint>base_rl_wheel_joint</leftRearJoint>
+        <rightRearJoint>base_fr_wheel_joint</rightRearJoint>
+        <wheelSeparation>${2 * wheel_y}</wheelSeparation>
+        <wheelDiameter>${2 * wheel_radius}</wheelDiameter>
+        <torque>0.25</torque>
+        <commandTopic>cmd_vel</commandTopic>
+        <odometryTopic>odom</odometryTopic>
+        <odometryFrame>odom</odometryFrame>
+        <robotBaseFrame>base_link</robotBaseFrame>
+        <updateRate>20.000000</updateRate>
+        <covariance_x>0.000100</covariance_x>
+        <covariance_y>0.000100</covariance_y>
+        <covariance_yaw>0.010000</covariance_yaw>
+      </plugin>
+    </gazebo>
+
+    <gazebo reference="laser">
+      <sensor type="ray" name="laser">
+        <visualize>true</visualize>
+        <update_rate>10</update_rate>
+        <ray>
+          <scan>
+            <horizontal>
+              <samples>360</samples>
+              <min_angle>${radians(-180)}</min_angle>
+              <max_angle>${radians(179)}</max_angle>
+            </horizontal>
+          </scan>
+          <range>
+            <min>0.08</min>
+            <max>10.0</max>
+          </range>
+          <noise>
+            <type>gaussian</type>
+            <mean>0.0</mean>
+            <stddev>0.0025</stddev>
+          </noise>
+        </ray>
+        <plugin name="laser" filename="libgazebo_ros_laser.so">
+          <topicName>/scan_raw</topicName>
+          <frameName>laser</frameName>
+        </plugin>
+      </sensor>
+    </gazebo>
+
+    <gazebo reference="camera">
+      <sensor type="camera" name="camera">
+        <update_rate>30.0</update_rate>
+        <camera name="camera">
+          <horizontal_fov>${radians(100)}</horizontal_fov>
+          <image>
+            <width>640</width>
+            <height>480</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.005</near>
+            <far>300</far>
+          </clip>
+          <noise>
+            <type>gaussian</type>
+            <mean>0.0</mean>
+            <stddev>0.005</stddev>
+          </noise>
+        </camera>
+        <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+          <alwaysOn>true</alwaysOn>
+          <updateRate>0.0</updateRate>
+          <cameraName>camera</cameraName>
+          <imageTopicName>image_raw</imageTopicName>
+          <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+          <frameName>camera</frameName>
+          <hackBaseline>0.07</hackBaseline>
+          <distortionK1>0.0</distortionK1>
+          <distortionK2>0.0</distortionK2>
+          <distortionK3>0.0</distortionK3>
+          <distortionT1>0.0</distortionT1>
+          <distortionT2>0.0</distortionT2>
+        </plugin>
+      </sensor>
+    </gazebo>
+  </xacro:macro>
+
+</robot>

@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<robot name="bbot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:include filename="$(find bbot_description)/urdf/bbot_base/bbot_base.urdf.xacro" />
+  <xacro:include filename="$(find bbot_description)/urdf/bbot_materials.urdf.xacro" />
+
+  <xacro:bbot_base />
+
+</robot>

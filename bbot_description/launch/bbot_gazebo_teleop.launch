@@ -1,0 +1,16 @@
+<launch>
+
+  <arg name="model" default="$(find bbot_description)/robots/bbot.urdf.xacro" />
+  <arg name="world_name" default="worlds/empty.world" />
+  <arg name="rvizconfig" default="$(find bbot_description)/rviz/bbot_gazebo_teleop.rviz" />
+
+  <include file="$(find bbot_description)/launch/bbot_gazebo.launch">
+    <arg name="model" default="$(arg model)" />
+    <arg name="world_name" value="$(arg world_name)" />
+  </include>
+
+  <node name="rqt_robot_steering" pkg="rqt_robot_steering" type="rqt_robot_steering" />
+
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" />
+
+</launch>
