@@ -1,0 +1,7 @@
+TrajectoryPlannerROS:
+  holonomic_robot: false
+  controller_frequency: 10
+  max_vel_x: 0.35
+  min_vel_x: 0.15
+  min_in_place_rotational_vel: 0.8
+
