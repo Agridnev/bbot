@@ -3,9 +3,7 @@
 
   <xacro:macro name="bbot_base_wheel_gazebo" params="prefix">
     <gazebo reference="base_${prefix}_wheel">
-      <mu1>1</mu1>
-      <mu2>0.7</mu2>
-      <fdir1>1 0 0</fdir1>
+      <minDepth>0.001</minDepth>
       <material>Gazebo/Black</material>
     </gazebo>
   </xacro:macro>
@@ -22,7 +20,7 @@
         <leftFrontJoint>base_fl_wheel_joint</leftFrontJoint>
         <rightFrontJoint>base_fr_wheel_joint</rightFrontJoint>
         <leftRearJoint>base_rl_wheel_joint</leftRearJoint>
-        <rightRearJoint>base_fr_wheel_joint</rightRearJoint>
+        <rightRearJoint>base_rr_wheel_joint</rightRearJoint>
         <wheelSeparation>${2 * wheel_y}</wheelSeparation>
         <wheelDiameter>${2 * wheel_radius}</wheelDiameter>
         <torque>0.25</torque>
@@ -38,7 +36,7 @@
     </gazebo>
 
     <gazebo reference="laser">
-      <sensor type="ray" name="laser">
+      <sensor type="gpu_ray" name="laser">
         <visualize>true</visualize>
         <update_rate>10</update_rate>
         <ray>
@@ -59,7 +57,7 @@
             <stddev>0.0025</stddev>
           </noise>
         </ray>
-        <plugin name="laser" filename="libgazebo_ros_laser.so">
+        <plugin name="laser" filename="libgazebo_ros_gpu_laser.so">
           <topicName>/scan_raw</topicName>
           <frameName>laser</frameName>
         </plugin>
